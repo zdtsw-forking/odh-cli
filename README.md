@@ -9,6 +9,40 @@ CLI tool for ODH/RHOAI (Red Hat OpenShift AI) for interacting with ODH/RHOAI dep
 
 ## Quick Start
 
+### Using Pre-built Binary
+
+Download the latest release from [GitHub Releases](https://github.com/opendatahub-io/odh-cli/releases):
+
+```bash
+# Download and extract (example for Linux amd64)
+curl -LO https://github.com/opendatahub-io/odh-cli/releases/latest/download/odh-cli_linux_amd64.tar.gz
+tar -xzf odh-cli_linux_amd64.tar.gz
+
+# Make it avaiable on PATH
+sudo mv odh-cli /usr/local/bin/
+
+# Verify installation
+odh-cli version
+
+# Run commands
+odh-cli lint --target-version 3.3.0
+```
+
+**As kubectl Plugin (optional):**
+
+To use as `kubectl odh`, rename or symlink the binary after download it:
+
+```bash
+# Option 1: Rename
+sudo mv odh-cli /usr/local/bin/kubectl-odh
+
+# Option 2: Symlink (keeps both names available)
+sudo ln -s /usr/local/bin/odh-cli /usr/local/bin/kubectl-odh
+
+# Now use with kubectl
+kubectl odh lint --target-version 3.3.0
+```
+
 ### Using Containers
 
 Run the CLI using the pre-built container image. Set your container runtime (podman or docker):
