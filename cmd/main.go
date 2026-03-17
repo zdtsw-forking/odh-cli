@@ -8,6 +8,7 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 
 	"github.com/opendatahub-io/odh-cli/cmd/lint"
+	mustgather "github.com/opendatahub-io/odh-cli/cmd/must-gather"
 	"github.com/opendatahub-io/odh-cli/cmd/version"
 )
 
@@ -27,6 +28,7 @@ func main() {
 
 	version.AddCommand(cmd, flags)
 	lint.AddCommand(cmd, flags)
+	mustgather.AddCommand(cmd, flags)
 
 	if err := cmd.Execute(); err != nil {
 		if _, writeErr := os.Stderr.WriteString(err.Error() + "\n"); writeErr != nil {

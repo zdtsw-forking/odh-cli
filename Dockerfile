@@ -24,8 +24,6 @@ RUN go mod download
 COPY . .
 
 # Build arguments for version information
-# Defaults allow direct podman/docker build to work with development values
-# Production builds via make build-image override these with git-based values
 ARG VERSION=dev
 ARG COMMIT=unknown
 ARG DATE=unknown
@@ -64,7 +62,7 @@ RUN git clone --depth 1 --branch ${MUST_GATHER_BRANCH} \
     && mv /tmp/must-gather/collection-scripts /opt/must-gather \
     && rm -rf /tmp/must-gather
 
-# Install kubectl with multi-arch support
+# Install kubectl with multi-arch support (latest stable version)
 RUN set -e; \
     ARCH=${TARGETARCH:-amd64}; \
     case "$ARCH" in \
@@ -76,7 +74,7 @@ RUN set -e; \
     chmod +x kubectl; \
     mv kubectl /usr/local/bin/kubectl
 
-# Install OpenShift CLI (oc) with multi-arch support
+# Install OpenShift CLI (oc) with multi-arch support (latest stable version)
 RUN set -e; \
     ARCH=${TARGETARCH:-amd64}; \
     case "$ARCH" in \
@@ -143,7 +141,7 @@ ENV PATH="/opt/rhai-cli/bin:${PATH}"
 # so arbitrary UIDs can create subdirectories without permission errors)
 RUN mkdir -p /tmp/rhoai-upgrade-backup && chmod 1777 /tmp/rhoai-upgrade-backup
 
-# Create must-gather output directory (world-writable with sticky bit)
+# Create must-gather output directory
 RUN mkdir -p /tmp/must-gather && chmod 1777 /tmp/must-gather
 
 # Set entrypoint to rhai-cli binary

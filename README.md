@@ -113,34 +113,61 @@ docker run --rm -ti \
   --server=https://api.my-cluster.p3.openshiftapps.com:6443
 ```
 
+## Troubleshooting
+
 ### Must-Gather (Collect Diagnostic Information)
 
-Collect diagnostic information from OpenShift AI clusters for troubleshooting:
+Collect diagnostic information from OpenShift AI clusters for troubleshooting.
 
-**Podman:**
+> **Requirement:** Must-gather needs collection scripts from [must-gather repository](https://github.com/red-hat-data-services/must-gather).
+>
+> **Note:** Currently only the `llm-d` component is supported.
+
+#### Using Container Image (Recommended)
+
+Scripts are pre-bundled. Output is written to the mounted directory.
+
+**Collect llm-d component:**
+
+**Option 1: Mount output directory (requires permissions)**
 ```bash
+# Create output directory with timestamp and proper permissions
+GATHER_DIR="./must-gather.local.$(date +%s)"
+mkdir -p "$GATHER_DIR"
+chmod 777 "$GATHER_DIR"
+
 podman run --rm -ti \
-  -v $KUBECONFIG:/kubeconfig \
-  -v ./must-gather.local.$(date +%s):/tmp/must-gather \
-  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather
+  -v $KUBECONFIG:/kubeconfig:Z -v "$GATHER_DIR":/tmp/must-gather:Z \
+  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather --component llm-d
 ```
 
-**Docker:**
+**Option 2: Copy files after collection (cleaner, no permission issues)**
 ```bash
-docker run --rm -ti \
-  -v $KUBECONFIG:/kubeconfig \
-  -v ./must-gather.local.$(date +%s):/tmp/must-gather \
-  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather
+# Run collection inside container (without --rm to preserve for copy)
+podman run -ti \
+  --name odh-must-gather -v $KUBECONFIG:/kubeconfig:Z \
+  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather --component llm-d
+
+# Copy results out thenc lean up container
+GATHER_DIR="./must-gather.local.$(date +%s)"
+podman cp odh-must-gather:/tmp/must-gather "$GATHER_DIR"
+podman rm odh-must-gather
 ```
 
-The output is written to the mounted local directory (e.g., `./must-gather.local.1234567890`).
+> **Note:** The `:Z` flag sets the SELinux label for container access on RHEL/Fedora/CentOS. Omit `:Z` on non-SELinux systems.
 
-**For xKS environments (currently OCP, AKS, CKS) - collect LLM-D components only:**
+#### Using Local Binary (Development)
+
+For development, clone the scripts and use `--scripts-path`:
+
 ```bash
-podman run --rm -ti \
-  -v $KUBECONFIG:/kubeconfig \
-  -v ./must-gather.local.$(date +%s):/tmp/must-gather \
-  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather --llm-d
+# 1. Clone scripts repository
+git clone https://github.com/red-hat-data-services/must-gather.git /tmp/must-gather-scripts
+
+# 2. Run with --scripts-path
+kubectl-odh must-gather \
+  --scripts-path /tmp/must-gather-scripts/collection-scripts \
+  --component llm-d
 ```
 
 ## Documentation

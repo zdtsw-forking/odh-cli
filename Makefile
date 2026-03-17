@@ -23,7 +23,8 @@ CONTAINER_PLATFORMS ?= linux/amd64,linux/arm64
 CONTAINER_TAGS ?= $(VERSION)
 
 # Must-gather configuration
-MUST_GATHER_BRANCH ?= main
+MUST_GATHER_REPO ?= https://github.com/zdtsw-forking/must-gather.git
+MUST_GATHER_BRANCH ?= chore_duplication
 
 # Platform for cross-compilation (defaults to current platform)
 GOOS ?= $(shell go env GOOS)
@@ -103,6 +104,7 @@ build-image:
 		--build-arg VERSION=$(VERSION) \
 		--build-arg COMMIT=$(COMMIT) \
 		--build-arg DATE=$(DATE) \
+		--build-arg MUST_GATHER_REPO=$(MUST_GATHER_REPO) \
 		--build-arg MUST_GATHER_BRANCH=$(MUST_GATHER_BRANCH) \
 		--manifest=$$MANIFEST_NAME \
 		.
