@@ -87,6 +87,7 @@ rhai-cli lint --target-version 3.3.0
 
 The `rhai-cli` binary is located at `/opt/rhai-cli/bin/rhai-cli` (already on `PATH`).
 Upgrade helper scripts are located at `/opt/rhai-upgrade-helpers`.
+Must-gather scripts are located at `/opt/must-gather`.
 
 **Token Authentication:**
 
@@ -110,6 +111,36 @@ docker run --rm -ti \
   --target-version 3.3.0 \
   --token=sha256~xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx \
   --server=https://api.my-cluster.p3.openshiftapps.com:6443
+```
+
+### Must-Gather (Collect Diagnostic Information)
+
+Collect diagnostic information from OpenShift AI clusters for troubleshooting:
+
+**Podman:**
+```bash
+podman run --rm -ti \
+  -v $KUBECONFIG:/kubeconfig \
+  -v ./must-gather.local.$(date +%s):/tmp/must-gather \
+  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather
+```
+
+**Docker:**
+```bash
+docker run --rm -ti \
+  -v $KUBECONFIG:/kubeconfig \
+  -v ./must-gather.local.$(date +%s):/tmp/must-gather \
+  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather
+```
+
+The output is written to the mounted local directory (e.g., `./must-gather.local.1234567890`).
+
+**For xKS environments (currently OCP, AKS, CKS) - collect LLM-D components only:**
+```bash
+podman run --rm -ti \
+  -v $KUBECONFIG:/kubeconfig \
+  -v ./must-gather.local.$(date +%s):/tmp/must-gather \
+  quay.io/rhoai/rhoai-upgrade-helpers-rhel9:dev must-gather --llm-d
 ```
 
 ## Documentation

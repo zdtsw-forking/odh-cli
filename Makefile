@@ -22,6 +22,9 @@ CONTAINER_REPO ?= $(CONTAINER_REGISTRY)/rhoai/rhoai-upgrade-helpers-rhel9
 CONTAINER_PLATFORMS ?= linux/amd64,linux/arm64
 CONTAINER_TAGS ?= $(VERSION)
 
+# Must-gather configuration
+MUST_GATHER_BRANCH ?= main
+
 # Platform for cross-compilation (defaults to current platform)
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
@@ -100,6 +103,7 @@ build-image:
 		--build-arg VERSION=$(VERSION) \
 		--build-arg COMMIT=$(COMMIT) \
 		--build-arg DATE=$(DATE) \
+		--build-arg MUST_GATHER_BRANCH=$(MUST_GATHER_BRANCH) \
 		--manifest=$$MANIFEST_NAME \
 		.
 	@echo "Container image built successfully: localhost/odh-cli:$(VERSION)"
